@@ -294,16 +294,25 @@ $('#previewBar').hidden = !!CONFIG.API_URL;
 $('#party').hidden = !CONFIG.PARTY;
 if (CONFIG.PARTY) ['when','where','addr'].forEach(k => { $('#party .' + k).textContent = CONFIG.PARTY[k]; });
 
+// Сначала мгновенно показываем catalog.json, потом Apps Script (отвечает ~4 с) обновляет список и статусы.
+// ponytail: catalog.json надо держать в синхроне с листом «Подарки», иначе на секунду мелькнёт старый список
 async function load() {
+  let shown = false;
   try {
-    const r = await fetch(CONFIG.API_URL || 'catalog.json', { cache: 'no-store' });
-    const d = await r.json();
-    gifts = CONFIG.API_URL ? d.gifts : d.filter(g => String(g.show).trim() === 'да').map(g => ({ ...g, status: 'free', count: 0 }));
+    const d = await (await fetch('catalog.json', { cache: 'no-store' })).json();
+    if (!gifts.length) { gifts = d.filter(g => String(g.show).trim() === 'да').map(g => ({ ...g, status: 'free', count: 0 })); render(); }
+    shown = true;
+  } catch {}
+  if (!CONFIG.API_URL) { if (!shown) fail(); return; }
+  try {
+    const d = await (await fetch(CONFIG.API_URL, { cache: 'no-store' })).json();
+    gifts = d.gifts;
     for (const id in mine) if (!gifts.some(g => g.id === id)) delete mine[id];
     render();
-  } catch {
-    $('#grid').innerHTML = '<div class="state">Не получилось загрузить список. <button class="link-btn" onclick="load()">Попробовать ещё раз</button></div>';
-  }
+  } catch { if (!shown) fail(); }
+}
+function fail() {
+  $('#grid').innerHTML = '<div class="state">Не получилось загрузить список. <button class="link-btn" onclick="load()">Попробовать ещё раз</button></div>';
 }
 
 function render() {
