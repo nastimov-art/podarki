@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Подарки без коробок</title>
+<meta name="description" content="День рождения и коллекция впечатлений вместо вещей">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<script>
+// ===== НАСТРОЙКИ: меняйте только здесь =====
+const CONFIG = {
+  API_URL: '',          // адрес веб-приложения Apps Script (заканчивается на /exec). Пусто = предпросмотр без сохранения
+  NAME: 'Кира', NAME_GEN: 'Киры', NAME_DAT: 'Кире',
+  AGE: 8,
+  DATE: '22 октября',
+  PHOTO: 'photo.jpg',          // файл фото рядом с index.html, например 'photo.jpg'. Пусто = открытка без фото
+  PARTY: 'Празднуем 25 октября в 11:00, детский парк «Тасмания», ТРК «Сибирский городок», 2 этаж, Ленинградский проспект, 1Б',          // строка про праздник, например 'Празднуем 24 октября в 15:00'. Пусто = строки нет
+  SIGN: 'Настя и Кира'
+};
+</script>
+<style>
+:root{
+  --paper:#f5efe4; --card:#fffdf8; --ink:#2a2622; --muted:#6e655b; --line:#e3d8c6;
+  --terra:#b9472a; --teal:#2f6f6b; --mustard:#d9a33a; --plum:#7b4a6b; --sky:#3f6fa0;
+  --r:16px; --shadow:0 1px 2px rgba(60,40,20,.06),0 8px 24px rgba(60,40,20,.08);
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 Manrope,system-ui,sans-serif;
+  background-image:radial-gradient(rgba(120,90,50,.07) 1px,transparent 1px);background-size:18px 18px}
+img{max-width:100%;display:block}
+a{color:var(--teal)}
+.wrap{max-width:1080px;margin:0 auto;padding:0 16px}
+h1,h2,h3{font-family:Lora,Georgia,serif;font-weight:600;line-height:1.15;margin:0}
+.hand{font-family:Caveat,cursive;font-weight:700}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:0 22px;border-radius:999px;
+  border:0;background:var(--ink);color:#fff;font:700 15px Manrope,sans-serif;cursor:pointer;text-decoration:none;transition:transform .15s,background .15s}
+.btn:hover{transform:translateY(-1px)}
+.btn:focus-visible,.chip:focus-visible,.link-btn:focus-visible{outline:3px solid var(--mustard);outline-offset:2px}
+.btn[disabled]{background:#cfc5b6;color:#6e655b;cursor:default;transform:none}
+.btn.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 2px var(--ink)}
+.link-btn{background:none;border:0;padding:4px 0;color:var(--terra);font:600 14px Manrope;cursor:pointer;text-decoration:underline}
+
+/* превью */
+.preview-bar{position:sticky;top:0;z-index:5;background:var(--mustard);color:#2a2622;font-size:14px;text-align:center;padding:8px 16px}
+
+/* обложка */
+.hero{padding:56px 0 40px}
+.hero .wrap{display:grid;grid-template-columns:1.15fr .85fr;gap:48px;align-items:center}
+.eyebrow{display:inline-block;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--terra);font-weight:700;margin-bottom:18px}
+.hero h1{font-size:clamp(38px,6vw,64px)}
+.hero h1 em{font-style:italic;color:var(--terra)}
+.party{font:700 26px Caveat,cursive;color:var(--teal);margin:-8px 0 24px!important}
+.hero p{font-size:18px;max-width:34em;color:#3d3731;margin:20px 0 28px}
+.photo-box{position:relative;justify-self:center;width:min(340px,82vw)}
+.polaroid{background:#fff;padding:14px 14px 56px;box-shadow:var(--shadow);transform:rotate(3deg);position:relative}
+.polaroid::before{content:"";position:absolute;top:-14px;left:50%;width:110px;height:30px;transform:translateX(-50%) rotate(-4deg);
+  background:rgba(217,163,58,.55);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.polaroid .frame{aspect-ratio:4/5;overflow:hidden;background:linear-gradient(160deg,#f3d9c8,#e8c2a8 45%,#c9dcd6)}
+.polaroid img{width:100%;height:100%;object-fit:cover}
+.placeholder{width:100%;height:100%;display:grid;place-items:center;position:relative}
+.placeholder b{font:600 150px/1 Lora,serif;color:#fff;text-shadow:0 4px 18px rgba(150,70,40,.25)}
+.placeholder i{position:absolute;font-style:normal;color:#fff;opacity:.85}
+.polaroid figcaption{position:absolute;left:0;right:0;bottom:12px;text-align:center;font:700 26px Caveat,cursive;color:#4a423a}
+.postmark{position:absolute;right:-18px;bottom:-26px;width:112px;height:112px;border-radius:50%;border:2px dashed var(--teal);
+  color:var(--teal);display:grid;place-items:center;text-align:center;font:700 9.5px/1.4 Manrope;letter-spacing:.04em;transform:rotate(-14deg);background:rgba(245,239,228,.85)}
+
+/* секции */
+section{padding:48px 0}
+.sec-head{max-width:640px;margin-bottom:28px}
+.sec-head h2{font-size:clamp(28px,4vw,40px);margin-bottom:12px}
+.sec-head p{color:var(--muted);margin:0}
+.kicker{font:700 22px Caveat,cursive;color:var(--terra);display:block;margin-bottom:4px}
+
+/* история */
+.letter{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:clamp(24px,5vw,48px);max-width:760px;position:relative;
+  background-image:linear-gradient(transparent 31px,var(--line) 32px);background-size:100% 32px;background-position:0 22px}
+.letter p{font-size:17px;line-height:32px;margin:0 0 32px}
+.letter p:last-of-type{margin-bottom:8px}
+.letter .sign{font-size:30px;color:var(--terra);text-align:right;margin:0}
+
+/* шаги */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;counter-reset:s}
+.step{background:var(--card);border-radius:var(--r);padding:22px;box-shadow:var(--shadow)}
+.step::before{counter-increment:s;content:counter(s);display:grid;place-items:center;width:36px;height:36px;border-radius:50%;
+  background:var(--ink);color:#fff;font:600 18px Lora;margin-bottom:12px}
+.step h3{font-size:19px;margin-bottom:6px}
+.step p{margin:0;color:var(--muted);font-size:15px}
+.honest{margin-top:16px;font-size:14px;color:var(--muted);border-left:3px solid var(--mustard);padding:4px 0 4px 12px}
+
+/* фильтры */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}
+.chip{min-height:40px;padding:0 16px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);font:600 14px Manrope;color:var(--ink);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+
+/* билеты */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px}
+.ticket{--c:var(--teal);position:relative;background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);display:flex;flex-direction:column;overflow:hidden}
+.ticket[data-cat="творчество"]{--c:var(--terra)}
+.ticket[data-cat="приключения"]{--c:var(--teal)}
+.ticket[data-cat="зрелища"]{--c:var(--plum)}
+.ticket[data-cat="вместе"]{--c:var(--sky)}
+.stub{display:flex;align-items:center;gap:12px;padding:16px 20px;background:color-mix(in srgb,var(--c) 10%,var(--card))}
+.stub .ico{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-size:24px;background:#fff;box-shadow:inset 0 0 0 2px var(--c)}
+.stub .cat{font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--c)}
+.perf{position:relative;height:0;border-top:2px dashed var(--line);margin:0 18px}
+.perf::before,.perf::after{content:"";position:absolute;top:-11px;width:20px;height:20px;border-radius:50%;background:var(--paper)}
+.perf::before{left:-28px}.perf::after{right:-28px}
+.body{padding:18px 20px 20px;display:flex;flex-direction:column;gap:10px;flex:1}
+.body h3{font-size:21px}
+.place{font-size:14px;color:var(--muted);margin:0}
+.body>p.txt{margin:0}
+dl{margin:4px 0 0;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:14px}
+dt{color:var(--muted)}dd{margin:0}
+.how{font-size:14px;background:var(--paper);border-radius:10px;padding:10px 12px;margin:0}
+.src{font-size:12.5px;color:var(--muted);margin:0}
+.actions{margin-top:auto;padding-top:8px;display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+.mine-note{font:700 20px Caveat,cursive;color:var(--teal)}
+.stamp{position:absolute;top:20px;right:14px;transform:rotate(-12deg);border:3px double var(--terra);color:var(--terra);border-radius:8px;
+  padding:6px 12px;font:600 15px Lora;letter-spacing:.08em;text-transform:uppercase;background:rgba(255,253,248,.9);pointer-events:none}
+.ticket.is-taken .body>*:not(.actions){opacity:.55}
+.ticket.is-taken .stub{filter:saturate(.3)}
+.state{padding:32px;text-align:center;background:var(--card);border-radius:var(--r);color:var(--muted)}
+
+/* деньги */
+.piggy{background:var(--ink);color:#f5efe4;border-radius:24px;padding:clamp(24px,5vw,48px);display:grid;grid-template-columns:1.2fr .8fr;gap:32px;align-items:center}
+.piggy h2{font-size:clamp(28px,4vw,40px);margin-bottom:12px}
+.piggy p{color:#d9cfbf;margin:0 0 12px}
+.coin{justify-self:center;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#f3d48a,var(--mustard) 60%,#b6852a);
+  display:grid;place-items:center;font-size:70px;box-shadow:0 10px 40px rgba(217,163,58,.35)}
+
+/* финал */
+.thanks{text-align:center;padding:64px 0 80px}
+.thanks h2{font-size:clamp(30px,5vw,46px);margin-bottom:16px}
+.thanks p{max-width:560px;margin:0 auto 12px;color:#3d3731}
+.thanks .sign{font-size:32px;color:var(--terra);margin-top:20px}
+
+/* диалог */
+dialog{border:0;border-radius:20px;padding:0;width:min(480px,calc(100vw - 32px));box-shadow:0 20px 60px rgba(0,0,0,.25);background:var(--card);color:var(--ink)}
+dialog::backdrop{background:rgba(42,38,34,.45)}
+.dlg{padding:28px 24px 24px}
+.dlg h3{font-size:24px;margin-bottom:4px}
+.dlg .sub{color:var(--muted);margin:0 0 18px;font-size:15px}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label{font-weight:700;font-size:14px}
+.field small{color:var(--muted);font-weight:400}
+.field input,.field textarea{font:16px Manrope;padding:12px 14px;border-radius:12px;border:1.5px solid var(--line);background:#fff;color:var(--ink);width:100%}
+.field input:focus,.field textarea:focus{outline:none;border-color:var(--teal)}
+.dlg .row{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:6px}
+.msg{border-radius:12px;padding:12px 14px;font-size:15px;margin:0 0 14px}
+.msg.ok{background:#e4f0ec;color:#1f4d49}.msg.err{background:#f7e2dc;color:#7a2d1b}.msg.info{background:#f6ecd5;color:#5a4214}
+.spin{width:16px;height:16px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:r .7s linear infinite}
+@keyframes r{to{transform:rotate(360deg)}}
+
+@media (max-width:820px){
+  .hero{padding-top:32px}
+  .hero .wrap{grid-template-columns:1fr;gap:40px}
+  .photo-box{order:-1}
+  .steps{grid-template-columns:1fr}
+  .piggy{grid-template-columns:1fr}
+  .coin{display:none}
+  .photo-box{width:min(270px,72vw)}
+  .postmark{right:-14px;width:96px;height:96px}
+}
+@media (max-width:360px){ .grid{grid-template-columns:1fr} }
+@media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto} .btn{transition:none} .spin{animation-duration:2s} }
+</style>
+</head>
+<body>
+<div class="preview-bar" id="previewBar" hidden>Предпросмотр: выбор пока не сохраняется</div>
+
+<header class="hero">
+  <div class="wrap">
+    <div>
+      <span class="eyebrow"><span data-f="date"></span> · <span data-f="dat"></span> исполняется <span data-f="age"></span></span>
+      <h1>Подарки, которые <em>не нужно упаковывать</em></h1>
+      <p>В этом году мы хотим собирать для <span data-f="gen"></span> не вещи, а впечатления. Новые умения, маленькие приключения и дни, которые потом хочется пересказывать.</p>
+      <p class="party" id="party" hidden></p>
+      <a class="btn" href="#ideas">Посмотреть идеи</a>
+    </div>
+    <div class="photo-box">
+      <figure class="polaroid" style="margin:0">
+        <div class="frame" id="photo"></div>
+        <figcaption><span data-f="nom"></span>, <span data-f="age"></span></figcaption>
+      </figure>
+      <div class="postmark" aria-hidden="true">ЖЕЛЕЗНОГОРСК<br>★<br>2026</div>
+    </div>
+  </div>
+</header>
+
+<section id="story">
+  <div class="wrap">
+    <div class="sec-head"><span class="kicker">почему так</span><h2>Наша маленькая история</h2></div>
+    <div class="letter">
+      <p>Вещей у нас и так много, а впечатления остаются на всю жизнь. Первая чашка, слепленная своими руками. Смелость погладить лошадь. Смех на спектакле, который потом пересказываешь всю неделю.</p>
+      <p><span data-f="nom"></span> очень творческая: она обожает пробовать новое и делать что-то своими руками. Поэтому мы нашли в Железногорске места, где ей точно понравится.</p>
+      <p>Подарить можно занятие или мастер-класс, билеты на спектакль, маленькое приключение. Или деньги: тогда <span data-f="nom"></span> сама выберет, чего ей хочется, хоть сразу, хоть потом.</p>
+      <p>Эта страничка для тех, кто спрашивает «а что подарить?».</p>
+      <p class="sign hand" data-f="sign"></p>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <div class="sec-head"><span class="kicker">это просто</span><h2>Как выбрать подарок</h2></div>
+    <div class="steps">
+      <div class="step"><h3>Выберите подарок</h3><p>Нажмите «Я подарю это» на понравившемся билетике и оставьте своё имя. Регистрация не нужна.</p></div>
+      <div class="step"><h3>Он отметится</h3><p>Другие гости увидят «Уже выбрали» и не купят то же самое. Передумаете, отмените выбор в один клик.</p></div>
+      <div class="step"><h3>Купите и подарите</h3><p>Купите сертификат или билеты в выбранном месте и подарите на празднике. Если сертификата нет, подойдёт сумма в конверте с подписью, на что она.</p></div>
+    </div>
+    <p class="honest">Отметка на сайте значит только, что подарок занят. Покупаете вы сами: по ссылке или на месте.</p>
+  </div>
+</section>
+
+<section id="ideas">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="kicker">карта открытий</span>
+      <h2>Что можно подарить</h2>
+      <p>Мы сами нашли эти места в Железногорске. Цены указаны так, как их пишут организаторы, а где проверить не удалось, мы честно это пометили.</p>
+    </div>
+    <div class="chips" id="chips" role="group" aria-label="Фильтр по категориям"></div>
+    <div class="grid" id="grid" aria-live="polite"><div class="state">Загружаем идеи…</div></div>
+  </div>
+</section>
+
+<section id="money">
+  <div class="wrap">
+    <div class="piggy">
+      <div>
+        <span class="kicker" style="color:var(--mustard)">если не хочется выбирать</span>
+        <h2>Деньги тоже радуют</h2>
+        <p>Подарок в конверте <span data-f="nom"></span> потратит на то, что выберет сама: на занятие, на приключение или на то, чего ей захочется потом. Самые интересные желания иногда появляются не сразу.</p>
+        <p>А мы обязательно расскажем, что она выбрала.</p>
+      </div>
+      <div class="coin" aria-hidden="true">✨</div>
+    </div>
+  </div>
+</section>
+
+<footer class="thanks">
+  <div class="wrap">
+    <span class="kicker">напоследок</span>
+    <h2>Спасибо, что вы рядом</h2>
+    <p>Мы правда будем рады вас увидеть. А если вы выбрали что-то из этого списка, <span data-f="nom"></span> обязательно расскажет, как всё прошло.</p>
+    <p class="sign hand" data-f="sign"></p>
+  </div>
+</footer>
+
+<dialog id="dlg">
+  <form class="dlg" id="form" novalidate>
+    <h3 id="dTitle"></h3>
+    <p class="sub" id="dSub"></p>
+    <div id="dMsg"></div>
+    <div id="dFields">
+      <div class="field"><label for="fName">Ваше имя</label><input id="fName" name="name" maxlength="60" autocomplete="name" required></div>
+      <div class="field"><label for="fContact">Как с вами связаться <small>по желанию, увидят только родители</small></label><input id="fContact" name="contact" maxlength="80" placeholder="Телефон или Telegram"></div>
+      <div class="field"><label for="fNote" id="fNoteLabel">Комментарий <small>по желанию</small></label><textarea id="fNote" name="note" rows="2" maxlength="300"></textarea></div>
+    </div>
+    <div class="row">
+      <button type="button" class="btn ghost" id="dClose">Закрыть</button>
+      <button type="submit" class="btn" id="dSend">Отметить</button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const CATS = ['все', 'творчество', 'приключения', 'зрелища'];
+let gifts = [], filter = 'все', current = null, busy = false, rid = '';
+
+const mine = (() => { try { return JSON.parse(localStorage.getItem('wish-mine') || '{}'); } catch { return {}; } })();
+const saveMine = () => { try { localStorage.setItem('wish-mine', JSON.stringify(mine)); } catch {} };
+
+// подстановка имени, возраста и подписи
+const F = { nom: CONFIG.NAME, gen: CONFIG.NAME_GEN, dat: CONFIG.NAME_DAT, age: CONFIG.AGE, date: CONFIG.DATE, sign: CONFIG.SIGN };
+document.querySelectorAll('[data-f]').forEach(el => { el.textContent = F[el.dataset.f]; });
+$('#photo').innerHTML = CONFIG.PHOTO
+  ? `<img src="${esc(CONFIG.PHOTO)}" alt="${esc(CONFIG.NAME)}">`
+  : `<div class="placeholder" aria-hidden="true"><b>${esc(CONFIG.AGE)}</b><i style="top:14%;left:16%;font-size:26px">✦</i><i style="top:24%;right:18%;font-size:16px">✦</i><i style="bottom:18%;left:24%;font-size:18px">✦</i></div>`;
+$('#previewBar').hidden = !!CONFIG.API_URL;
+$('#party').hidden = !CONFIG.PARTY;
+$('#party').textContent = CONFIG.PARTY;
+
+async function load() {
+  try {
+    const r = await fetch(CONFIG.API_URL || 'catalog.json', { cache: 'no-store' });
+    const d = await r.json();
+    gifts = CONFIG.API_URL ? d.gifts : d.filter(g => String(g.show).trim() === 'да').map(g => ({ ...g, status: 'free', count: 0 }));
+    for (const id in mine) if (!gifts.some(g => g.id === id)) delete mine[id];
+    render();
+  } catch {
+    $('#grid').innerHTML = '<div class="state">Не получилось загрузить список. <button class="link-btn" onclick="load()">Попробовать ещё раз</button></div>';
+  }
+}
+
+function render() {
+  $('#chips').innerHTML = CATS.map(c => `<button class="chip" aria-pressed="${c === filter}" data-c="${c}">${c[0].toUpperCase() + c.slice(1)}</button>`).join('');
+  const list = gifts.filter(g => filter === 'все' || g.cat === filter);
+  $('#grid').innerHTML = list.length ? list.map(card).join('') : '<div class="state">Здесь пока пусто. Загляните в другие категории.</div>';
+}
+
+function actions(g) {
+  if (mine[g.id]) return `<span class="mine-note">Это ваш выбор, спасибо!</span> <button class="link-btn" data-cancel="${esc(g.id)}">Отменить мой выбор</button>`;
+  if (g.status === 'done') return '<button class="btn" disabled>Уже подарено</button>';
+  if (g.status === 'taken') return '<button class="btn" disabled>Уже выбрали</button>';
+  return `<button class="btn" data-pick="${esc(g.id)}">Я подарю это</button>`;
+}
+
+function card(g) {
+  const taken = !mine[g.id] && (g.status === 'taken' || g.status === 'done');
+  const meta = [['Возраст', g.age], ['Стоимость', g.price], ['Формат', g.format]].filter(m => m[1]);
+  return `<article class="ticket${taken ? ' is-taken' : ''}" data-cat="${esc(g.cat)}">
+    <div class="stub"><span class="ico" aria-hidden="true">${esc(g.icon || '★')}</span><span class="cat">${esc(g.cat)}</span></div>
+    <div class="perf"></div>
+    ${taken ? `<span class="stamp">${g.status === 'done' ? 'Подарено' : 'Уже выбрали'}</span>` : ''}
+    <div class="body">
+      <h3>${esc(g.title)}</h3>
+      ${g.place ? `<p class="place">${esc(g.place)}</p>` : ''}
+      <p class="txt">${esc(g.text)}</p>
+      ${meta.length ? `<dl>${meta.map(m => `<dt>${m[0]}</dt><dd>${esc(m[1])}</dd>`).join('')}</dl>` : ''}
+      ${g.how ? `<p class="how">${esc(g.how)}</p>` : ''}
+      ${g.link ? `<p class="src"><a href="${esc(g.link)}" target="_blank" rel="noopener">Страница места ↗</a>${g.source ? ' · ' + esc(g.source) : ''}</p>` : ''}
+      <div class="actions">${actions(g)}</div>
+    </div>
+  </article>`;
+}
+
+document.addEventListener('click', async e => {
+  const chip = e.target.closest('[data-c]');
+  if (chip) { filter = chip.dataset.c; render(); return; }
+  const pick = e.target.closest('[data-pick]');
+  if (pick) { open(gifts.find(g => g.id === pick.dataset.pick)); return; }
+  const cancel = e.target.closest('[data-cancel]');
+  if (cancel) await cancelPick(cancel.dataset.cancel, cancel);
+});
+
+function open(g) {
+  current = g;
+  rid = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now());
+  $('#dTitle').textContent = g.title;
+  $('#dSub').textContent = 'Отметим подарок за вами, чтобы его не купил кто-то ещё.';
+  $('#dMsg').innerHTML = '';
+  $('#dFields').hidden = false;
+  $('#dSend').hidden = false;
+  $('#dSend').disabled = false;
+  $('#dSend').textContent = 'Отметить';
+  $('#dClose').textContent = 'Закрыть';
+  $('#form').reset();
+  $('#dlg').showModal();
+  $('#fName').focus();
+}
+$('#dClose').onclick = () => $('#dlg').close();
+
+const say = (cls, html) => { $('#dMsg').innerHTML = `<p class="msg ${cls}">${html}</p>`; };
+const done = () => { $('#dFields').hidden = true; $('#dSend').hidden = true; $('#dClose').textContent = 'Готово'; };
+
+async function api(body) {
+  // text/plain, чтобы браузер не делал предварительный CORS-запрос к Google
+  const r = await fetch(CONFIG.API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) });
+  return r.json();
+}
+
+$('#form').addEventListener('submit', async e => {
+  e.preventDefault();
+  if (busy) return;
+  const name = $('#fName').value.trim();
+  if (!name) { say('err', 'Напишите, пожалуйста, своё имя, чтобы мы знали, кого благодарить.'); $('#fName').focus(); return; }
+  if (!CONFIG.API_URL) { say('info', 'Это предпросмотр: сайт пока не подключён к таблице, поэтому выбор не сохранился.'); return; }
+
+  busy = true;
+  $('#dSend').disabled = true;
+  $('#dSend').innerHTML = '<span class="spin"></span> Отмечаем';
+  try {
+    const r = await api({ action: 'reserve', id: current.id, name, contact: $('#fContact').value, note: $('#fNote').value, rid });
+    if (r.ok) {
+      mine[current.id] = r.code; saveMine();
+      say('ok', `Готово, отметили! Спасибо огромное. Теперь подарок можно покупать.<br><small>Если передумаете, на этом устройстве появится кнопка «Отменить мой выбор».</small>`);
+      done();
+    } else if (r.error === 'taken') {
+      say('info', 'Ой, эту идею только что выбрал кто-то другой. Посмотрите соседние билетики, там тоже много хорошего.');
+      done();
+    } else if (r.error === 'not_found') {
+      say('info', 'Эта идея больше не в списке. Обновите страницу, чтобы увидеть актуальные.');
+      done();
+    } else {
+      say('err', r.error === 'busy' ? 'Сейчас много желающих одновременно. Попробуйте ещё раз через пару секунд.' : 'Что-то пошло не так. Попробуйте ещё раз.');
+    }
+  } catch {
+    say('err', 'Не получилось связаться с таблицей. Проверьте интернет и попробуйте ещё раз: повторное нажатие не создаст дубль.');
+  } finally {
+    busy = false;
+    $('#dSend').disabled = false;
+    $('#dSend').textContent = 'Отметить';
+    load();
+  }
+});
+
+async function cancelPick(id, btn) {
+  if (!confirm('Отменить ваш выбор? Подарок снова станет свободным.')) return;
+  btn.disabled = true;
+  try {
+    const r = CONFIG.API_URL ? await api({ action: 'cancel', id, code: mine[id] }) : { ok: true };
+    if (r.ok || r.error === 'not_found') { delete mine[id]; saveMine(); }
+    else alert('Не получилось отменить. Попробуйте ещё раз.');
+  } catch { alert('Не получилось связаться с таблицей. Попробуйте ещё раз.'); }
+  load();
+}
+
+document.addEventListener('visibilitychange', () => { if (!document.hidden) load(); });
+load();
+</script>
+</body>
+</html>
