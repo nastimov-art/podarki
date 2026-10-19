@@ -184,7 +184,7 @@ dialog::backdrop{background:rgba(42,38,34,.45)}
       <span class="eyebrow"><span data-f="dat"></span> исполняется <span data-f="age"></span></span>
       <div class="party" id="party" hidden><span class="lbl">Празднуем</span><span class="when"></span><span class="where"></span><span class="addr"></span></div>
       <h1>Подарки, которые <em>не нужно упаковывать</em></h1>
-      <p>В этом году мы хотим собирать для <span data-f="gen"></span> не вещи, а впечатления. Новые умения, маленькие приключения и дни, которые потом хочется пересказывать.</p>
+      <p>В этом году мы хотим собирать для <span data-f="gen"></span> не вещи, а впечатления. Новые умения, маленькие приключения и дни, которые потом хочется пересказывать. А если не хочется выбирать, <span data-f="nom"></span> будет рада деньгам в конверте.</p>
       <a class="btn" href="#ideas">Посмотреть идеи</a>
     </div>
     <div class="photo-box">
@@ -196,6 +196,20 @@ dialog::backdrop{background:rgba(42,38,34,.45)}
     </div>
   </div>
 </header>
+
+<section id="money">
+  <div class="wrap">
+    <div class="piggy">
+      <div>
+        <span class="kicker" style="color:var(--mustard)">проще всего</span>
+        <h2>Деньги в конверте</h2>
+        <p><span data-f="nom"></span> будет очень рада деньгам в конверте. Она сама решит, на что их потратить: на занятие, на приключение или на то, чего ей захочется потом.</p>
+        <p>А мы обязательно расскажем, что она выбрала.</p>
+      </div>
+      <div class="coin" aria-hidden="true">✨</div>
+    </div>
+  </div>
+</section>
 
 <section id="story">
   <div class="wrap">
@@ -231,20 +245,6 @@ dialog::backdrop{background:rgba(42,38,34,.45)}
     </div>
     <div class="chips" id="chips" role="group" aria-label="Фильтр по категориям"></div>
     <div class="grid" id="grid" aria-live="polite"><div class="state">Загружаем идеи…</div></div>
-  </div>
-</section>
-
-<section id="money">
-  <div class="wrap">
-    <div class="piggy">
-      <div>
-        <span class="kicker" style="color:var(--mustard)">если не хочется выбирать</span>
-        <h2>Деньги тоже радуют</h2>
-        <p>Подарок в конверте <span data-f="nom"></span> потратит на то, что выберет сама: на занятие, на приключение или на то, чего ей захочется потом. Самые интересные желания иногда появляются не сразу.</p>
-        <p>А мы обязательно расскажем, что она выбрала.</p>
-      </div>
-      <div class="coin" aria-hidden="true">✨</div>
-    </div>
   </div>
 </section>
 
