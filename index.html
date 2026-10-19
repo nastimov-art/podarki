@@ -17,7 +17,7 @@ const CONFIG = {
   AGE: 8,
   DATE: '22 октября',
   PHOTO: 'photo.jpg',          // файл фото рядом с index.html, например 'photo.jpg'. Пусто = открытка без фото
-  PARTY: 'Празднуем 25 октября в 11:00, детский парк «Тасмания», ТРК «Сибирский городок», 2 этаж, Ленинградский проспект, 1Б',          // строка про праздник, например 'Празднуем 24 октября в 15:00'. Пусто = строки нет
+  PARTY: { when: '25 октября, 11:00', where: 'Детский парк «Тасмания»', addr: 'ТРК «Сибирский городок», 2 этаж, Ленинградский проспект, 1Б' }, // null = блока нет
   SIGN: 'Настя и Кира'
 };
 </script>
@@ -54,7 +54,11 @@ h1,h2,h3{font-family:Lora,Georgia,serif;font-weight:600;line-height:1.15;margin:
 .eyebrow{display:inline-block;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--terra);font-weight:700;margin-bottom:18px}
 .hero h1{font-size:clamp(38px,6vw,64px)}
 .hero h1 em{font-style:italic;color:var(--terra)}
-.party{font:700 26px Caveat,cursive;color:var(--teal);margin:-8px 0 24px!important}
+.party{margin:0 0 28px;padding:18px 22px;background:var(--card);border:2px dashed var(--teal);border-radius:var(--r);max-width:30em}
+.party .lbl{display:block;font:700 22px Caveat,cursive;color:var(--teal)}
+.party .when{display:block;font:600 clamp(30px,5vw,42px)/1.1 Lora,serif;color:var(--ink)}
+.party .where{display:block;font:600 clamp(20px,3vw,26px)/1.25 Lora,serif;color:var(--terra);margin-top:4px}
+.party .addr{display:block;font-size:15px;color:var(--muted);margin-top:6px}
 .hero p{font-size:18px;max-width:34em;color:#3d3731;margin:20px 0 28px}
 .photo-box{position:relative;justify-self:center;width:min(340px,82vw)}
 .polaroid{background:#fff;padding:14px 14px 56px;box-shadow:var(--shadow);transform:rotate(3deg);position:relative}
@@ -177,9 +181,9 @@ dialog::backdrop{background:rgba(42,38,34,.45)}
   <div class="wrap">
     <div>
       <span class="eyebrow"><span data-f="dat"></span> исполняется <span data-f="age"></span></span>
+      <div class="party" id="party" hidden><span class="lbl">Празднуем</span><span class="when"></span><span class="where"></span><span class="addr"></span></div>
       <h1>Подарки, которые <em>не нужно упаковывать</em></h1>
       <p>В этом году мы хотим собирать для <span data-f="gen"></span> не вещи, а впечатления. Новые умения, маленькие приключения и дни, которые потом хочется пересказывать.</p>
-      <p class="party" id="party" hidden></p>
       <a class="btn" href="#ideas">Посмотреть идеи</a>
     </div>
     <div class="photo-box">
@@ -286,7 +290,7 @@ $('#photo').innerHTML = CONFIG.PHOTO
   : `<div class="placeholder" aria-hidden="true"><b>${esc(CONFIG.AGE)}</b><i style="top:14%;left:16%;font-size:26px">✦</i><i style="top:24%;right:18%;font-size:16px">✦</i><i style="bottom:18%;left:24%;font-size:18px">✦</i></div>`;
 $('#previewBar').hidden = !!CONFIG.API_URL;
 $('#party').hidden = !CONFIG.PARTY;
-$('#party').textContent = CONFIG.PARTY;
+if (CONFIG.PARTY) ['when','where','addr'].forEach(k => { $('#party .' + k).textContent = CONFIG.PARTY[k]; });
 
 async function load() {
   try {
