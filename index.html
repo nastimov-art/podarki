@@ -276,6 +276,8 @@ dialog::backdrop{background:rgba(42,38,34,.45)}
 <script>
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+// числа и ₽ не разрываются на две строки: «1 500 ₽», «+7 913 523 77 13»
+const nb = s => esc(s).replace(/(\d)\s+(?=\d)/g, '$1\u00A0').replace(/\s+₽/g, '\u00A0₽');
 const CATS = ['все', 'творчество', 'приключения', 'зрелища'];
 let gifts = [], filter = 'все', current = null, busy = false, rid = '';
 
@@ -327,10 +329,10 @@ function card(g) {
     <div class="body">
       <h3>${esc(g.title)}</h3>
       ${g.place ? `<p class="place">${esc(g.place)}</p>` : ''}
-      <p class="txt">${esc(g.text)}</p>
-      ${meta.length ? `<dl>${meta.map(m => `<dt>${m[0]}</dt><dd>${esc(m[1])}</dd>`).join('')}</dl>` : ''}
-      ${g.how ? `<p class="how">${esc(g.how)}</p>` : ''}
-      ${g.link ? `<p class="src"><a href="${esc(g.link)}" target="_blank" rel="noopener">Страница места ↗</a>${g.source ? ' · ' + esc(g.source) : ''}</p>` : ''}
+      <p class="txt">${nb(g.text)}</p>
+      ${meta.length ? `<dl>${meta.map(m => `<dt>${m[0]}</dt><dd>${nb(m[1])}</dd>`).join('')}</dl>` : ''}
+      ${g.how ? `<p class="how">${nb(g.how)}</p>` : ''}
+      ${g.link ? `<p class="src"><a href="${esc(g.link)}" target="_blank" rel="noopener">Страница места ↗</a>${g.source ? ' · ' + nb(g.source) : ''}</p>` : ''}
       <div class="actions">${actions(g)}</div>
     </div>
   </article>`;
